@@ -1,0 +1,29 @@
+[Unit]
+Description=PTPi Clock
+After=network-online.target
+Wants=network-online.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+
+# Run as root because GPIO + raw sockets
+User=root
+
+# Application directory
+WorkingDirectory=/opt/ptpi-clock
+
+# Start the clock
+ExecStart=/opt/ptpi-clock/ptpi-clock -i eth0
+
+# Restart automatically if it exits
+Restart=always
+RestartSec=2
+
+# Improve scheduling stability
+Nice=-10
+IOSchedulingClass=realtime
+IOSchedulingPriority=0
+
+[Install]
+WantedBy=multi-user.target
