@@ -280,4 +280,4 @@ This has been tested so far only in my environment, which consists of the PTPi C
 
 # License
 
-Add GNU General Public License version 2
+GNU General Public License version 2
