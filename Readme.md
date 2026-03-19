@@ -280,5 +280,4 @@ This has been tested so far only in my environment, which consists of the PTPi C
 
 # License
 
-Open source.
-Use and modify freely.
+Add GNU General Public License version 2
