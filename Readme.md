@@ -44,11 +44,11 @@ I have 3 different cpp files for different ways to display the time. I did this 
 
 ![og](images/og.png)
 
-#### ptpi-clock_2line.cpp
+#### ptpi-clock-2line.cpp
 
 ![2line](images/2line.png)
 
-#### ptpi-clock_7seg.cpp
+#### ptpi-clock-7seg.cpp
 
 ![7seg](images/7seg.png)
 
@@ -86,12 +86,18 @@ Add `isolcpus=3` to the end of line in `/boot/firmware/cmdline.txt`. Save, then 
 ---
 ## Build
 
-From the project directory edit the Makefile to select which display you want, change the`.cpp` file to which ever one you want and then save the file.
+From the project directory, choose the display variant with `DISPLAY=...` when you build.
 
- Compile the code:
+Available values:
+
+* `DISPLAY=7seg` for `ptpi-clock-7seg.cpp`
+* `DISPLAY=2line` for `ptpi-clock-2line.cpp`
+* `DISPLAY=og` for `ptpi-clock.cpp`
+
+Compile the code:
 
 ```
-make
+make DISPLAY=7seg
 ```
 
 Or manually:
@@ -107,23 +113,29 @@ g++ -std=c++17 -O2 <display_version>.cpp -o ptpi-clock \
 
 ## Move Files
 
-Copy the binary and fonts:
+You can install the binary and the required fonts in one step:
 
 ```
-sudo mkdir -p /opt/ptpi-clock/fonts
-sudo cp ptpi-clock /opt/ptpi-clock/
+sudo make DISPLAY=7seg install
 ```
 
-If using `ptpi-clock_2line.cpp`
+This installs:
+
+* `ptpi-clock` to `/opt/ptpi-clock/`
+* The matching font files to `/opt/ptpi-clock/fonts/`
+
+Examples:
 
 ```
-sudo cp rpi-rgb-led-matrix/fonts/10x20.bdf /opt/ptpi-clock/fonts/
-sudo cp rpi-rgb-led-matrix/fonts/5x8.bdf /opt/ptpi-clock/fonts/
+sudo make DISPLAY=2line install
+sudo make DISPLAY=og install
 ```
 
-If using `ptpi-clock.cpp` or `ptpi-clock_7seg.cpp`
+If you want to install somewhere other than `/opt/ptpi-clock`, set `PREFIX`:
 
-`sudo cp rpi-rgb-led-matrix/fonts/7x14B.bdf /opt/ptpi-clock/fonts/`
+```
+sudo make DISPLAY=7seg PREFIX=/usr/local/ptpi-clock install
+```
 
 
 
