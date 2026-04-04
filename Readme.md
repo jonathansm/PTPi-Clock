@@ -44,17 +44,17 @@ I have 3 different cpp files for different ways to display the time. I did this 
 
 ![og](images/og.png)
 
-#### ptpi-clock_2line.cpp
+#### ptpi-clock-2line.cpp
 
 ![2line](images/2line.png)
 
-#### ptpi-clock_7seg.cpp
+#### ptpi-clock-7seg.cpp
 
 ![7seg](images/7seg.png)
 
 
 
-`ptpi-clock.cpp` and `ptpi-clock-2line.cpp` use `bdf` fonts, so you can swap them out to whatever looks best for you. Beware that some of the digit placements are hardcoded based on those fonts. `ptpi-clock-7seg.cpp` digit are all generated, but does use `7x14B.bdf` font for error messages. 
+`ptpi-clock.cpp` and `ptpi-clock-2line.cpp` use `bdf` fonts, so you can swap them out to whatever looks best for you. Beware that some of the digit placements are hardcoded based on those fonts. `ptpi-clock-7seg.cpp` digits are all generated, but it does use `7x14B.bdf` for error messages.
 
 ---
 
@@ -86,15 +86,29 @@ Add `isolcpus=3` to the end of line in `/boot/firmware/cmdline.txt`. Save, then 
 ---
 ## Build
 
-From the project directory edit the Makefile to select which display you want, change the`.cpp` file to which ever one you want and then save the file.
+The Makefile now builds one display layout at a time as `ptpi-clock`.
 
- Compile the code:
+Available layouts:
+
+- `CLOCK_DISPLAY=og` uses `ptpi-clock.cpp`
+- `CLOCK_DISPLAY=2line` uses `ptpi-clock-2line.cpp`
+- `CLOCK_DISPLAY=7seg` uses `ptpi-clock-7seg.cpp`
+
+Build the default 7-segment layout:
 
 ```
 make
 ```
 
-Or manually:
+Build a specific layout:
+
+```
+make CLOCK_DISPLAY=og
+make CLOCK_DISPLAY=2line
+make CLOCK_DISPLAY=7seg
+```
+
+Or compile manually:
 
 ```
 g++ -std=c++17 -O2 <display_version>.cpp -o ptpi-clock \
@@ -105,27 +119,20 @@ g++ -std=c++17 -O2 <display_version>.cpp -o ptpi-clock \
 
 ---
 
-## Move Files
+## Install
 
-Copy the binary and fonts:
-
-```
-sudo mkdir -p /opt/ptpi-clock/fonts
-sudo cp ptpi-clock /opt/ptpi-clock/
-```
-
-If using `ptpi-clock_2line.cpp`
+Install the selected build and the required fonts for that layout:
 
 ```
-sudo cp rpi-rgb-led-matrix/fonts/10x20.bdf /opt/ptpi-clock/fonts/
-sudo cp rpi-rgb-led-matrix/fonts/5x8.bdf /opt/ptpi-clock/fonts/
+sudo make CLOCK_DISPLAY=7seg install
 ```
 
-If using `ptpi-clock.cpp` or `ptpi-clock_7seg.cpp`
+Replace `7seg` with `og` or `2line` if you want one of those layouts installed instead.
 
-`sudo cp rpi-rgb-led-matrix/fonts/7x14B.bdf /opt/ptpi-clock/fonts/`
+This installs:
 
-
+- `/opt/ptpi-clock/ptpi-clock`
+- `/opt/ptpi-clock/fonts/...`
 
 ---
 
@@ -182,11 +189,13 @@ sudo ptpi-clock -i eth0 -log
 
 ## Running as a Service
 
-Edit the service file with any options that you want to include, then move the service file:
+Edit the service file with any options that you want to include.
 
 ```
 sudo cp ptpi-clock.service /etc/systemd/system/ptpi-clock.service
 ```
+
+Use the same `CLOCK_DISPLAY` value you built and installed.
 
 Enable service:
 
