@@ -173,6 +173,7 @@ struct PendingSync
 {
   uint64_t rx_mono_ns = 0;
   uint64_t received_mono_ns = 0;
+  int64_t correction_ns = 0;
 };
 
 PortIdentityKey MakeSequenceKey(const uint8_t *buf)
@@ -353,6 +354,14 @@ struct PtpClockReceiver::Impl
       return;
     }
 
+    const uint16_t flag_field = ReadBe16(buf, 6);
+    const bool utc_offset_valid = (flag_field & (1U << 2)) != 0;
+    if (!utc_offset_valid)
+    {
+      Log("[PTP] Announce: currentUtcOffset not marked valid");
+      return;
+    }
+
     snapshot.utc_offset = static_cast<int16_t>(ReadBe16(buf, 44));
     snapshot.utc_offset_valid = true;
     Log("[PTP] Announce: currentUtcOffset = " + std::to_string(snapshot.utc_offset));
@@ -370,7 +379,10 @@ struct PtpClockReceiver::Impl
 
     if (two_step_flag)
     {
-      pending_syncs[MakeSequenceKey(buf)] = PendingSync{rx_mono_ns, GetMonotonicNs()};
+      pending_syncs[MakeSequenceKey(buf)] = PendingSync{
+          rx_mono_ns,
+          GetMonotonicNs(),
+          CorrectionFieldToNs(buf, kCorrectionFieldOffset)};
       return;
     }
 
@@ -404,7 +416,7 @@ struct PtpClockReceiver::Impl
 
     uint64_t utc_sec = 0;
     uint32_t utc_nsec = 0;
-    if (!DecodeUtcTimestamp(buf, len, kTimestampFieldOffset, 0, utc_sec, utc_nsec))
+    if (!DecodeUtcTimestamp(buf, len, kTimestampFieldOffset, pending->second.correction_ns, utc_sec, utc_nsec))
     {
       pending_syncs.erase(pending);
       return;

@@ -111,7 +111,7 @@ make CLOCK_DISPLAY=7seg
 Or compile manually:
 
 ```
-g++ -std=c++17 -O2 <display_version>.cpp -o ptpi-clock \
+g++ -std=c++17 -O2 <display_version>.cpp ptp_clock_ptp.cpp -o ptpi-clock \
   -Irpi-rgb-led-matrix/include \
   -Lrpi-rgb-led-matrix/lib \
   -lrgbmatrix -lrt -lpthread
@@ -276,12 +276,12 @@ As for the internal layout, I fit everything into the case while ensuring the Po
 #  Todo
 
 1. Combine all clock faces into a single program and use a command-line argument to select display mode.
-2. Break out PTP processing code into separate library
+2. ~~Break out PTP processing code into separate library~~
 3. Hardware Timestamping support for NICs that support it.
 4. 12-hour format, with AM/PM indicator.
 5. Test that the 1-step actually works. I don't have a 1-step master clock, so I'm not 100% sure that it works.
 6. Port to a microcontroller. This would greatly improve boot time and remove the overhead of a full Linux system.
-7. Auto TIA to UTC offset, if in PTP packet
+7. ~~Auto TIA to UTC offset, if in PTP packet~~
 
 # Testing
 
