@@ -97,7 +97,7 @@ Available layouts:
 Build the default 7-segment layout:
 
 ```
-make
+make DISPLAY=7seg
 ```
 
 Build a specific layout:

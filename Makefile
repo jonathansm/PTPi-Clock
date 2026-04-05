@@ -41,5 +41,10 @@ install: $(TARGET)
 	$(INSTALL) -m 755 $(TARGET) $(PREFIX)/$(TARGET)
 	$(INSTALL) -m 644 $(INSTALL_FONTS) $(FONTDIR)/
 
+install: $(TARGET)
+	$(INSTALL) -d $(PREFIX) $(FONTDIR)
+	$(INSTALL) -m 755 $(TARGET) $(PREFIX)/$(TARGET)
+	$(INSTALL) -m 644 $(INSTALL_FONTS) $(FONTDIR)/
+
 clean:
 	rm -f $(TARGET) $(PTP_OBJ) $(PTP_LIB)
