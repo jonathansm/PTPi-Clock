@@ -54,7 +54,7 @@ I have 3 different cpp files for different ways to display the time. I did this 
 
 
 
-`ptpi-clock.cpp` and `ptpi-clock-2line.cpp` use `bdf` fonts, so you can swap them out to whatever looks best for you. Beware that some of the digit placements are hardcoded based on those fonts. `ptpi-clock-7seg.cpp` digit are all generated, but does use `7x14B.bdf` font for error messages. 
+`ptpi-clock.cpp` and `ptpi-clock-2line.cpp` use `bdf` fonts, so you can swap them out to whatever looks best for you. Beware that some of the digit placements are hardcoded based on those fonts. `ptpi-clock-7seg.cpp` digits are all generated, but it does use `7x14B.bdf` for error messages.
 
 ---
 
@@ -86,24 +86,32 @@ Add `isolcpus=3` to the end of line in `/boot/firmware/cmdline.txt`. Save, then 
 ---
 ## Build
 
-From the project directory, choose the display variant with `DISPLAY=...` when you build.
+The Makefile now builds one display layout at a time as `ptpi-clock`.
 
-Available values:
+Available layouts:
 
-* `DISPLAY=7seg` for `ptpi-clock-7seg.cpp`
-* `DISPLAY=2line` for `ptpi-clock-2line.cpp`
-* `DISPLAY=og` for `ptpi-clock.cpp`
+- `CLOCK_DISPLAY=og` uses `ptpi-clock.cpp`
+- `CLOCK_DISPLAY=2line` uses `ptpi-clock-2line.cpp`
+- `CLOCK_DISPLAY=7seg` uses `ptpi-clock-7seg.cpp`
 
-Compile the code:
+Build the default 7-segment layout:
 
 ```
 make DISPLAY=7seg
 ```
 
-Or manually:
+Build a specific layout:
 
 ```
-g++ -std=c++17 -O2 <display_version>.cpp -o ptpi-clock \
+make CLOCK_DISPLAY=og
+make CLOCK_DISPLAY=2line
+make CLOCK_DISPLAY=7seg
+```
+
+Or compile manually:
+
+```
+g++ -std=c++17 -O2 <display_version>.cpp ptp_clock_ptp.cpp -o ptpi-clock \
   -Irpi-rgb-led-matrix/include \
   -Lrpi-rgb-led-matrix/lib \
   -lrgbmatrix -lrt -lpthread
@@ -111,33 +119,20 @@ g++ -std=c++17 -O2 <display_version>.cpp -o ptpi-clock \
 
 ---
 
-## Move Files
+## Install
 
-You can install the binary and the required fonts in one step:
+Install the selected build and the required fonts for that layout:
 
 ```
-sudo make DISPLAY=7seg install
+sudo make CLOCK_DISPLAY=7seg install
 ```
+
+Replace `7seg` with `og` or `2line` if you want one of those layouts installed instead.
 
 This installs:
 
-* `ptpi-clock` to `/opt/ptpi-clock/`
-* The matching font files to `/opt/ptpi-clock/fonts/`
-
-Examples:
-
-```
-sudo make DISPLAY=2line install
-sudo make DISPLAY=og install
-```
-
-If you want to install somewhere other than `/opt/ptpi-clock`, set `PREFIX`:
-
-```
-sudo make DISPLAY=7seg PREFIX=/usr/local/ptpi-clock install
-```
-
-
+- `/opt/ptpi-clock/ptpi-clock`
+- `/opt/ptpi-clock/fonts/...`
 
 ---
 
@@ -194,11 +189,13 @@ sudo ptpi-clock -i eth0 -log
 
 ## Running as a Service
 
-Edit the service file with any options that you want to include, then move the service file:
+Edit the service file with any options that you want to include.
 
 ```
 sudo cp ptpi-clock.service /etc/systemd/system/ptpi-clock.service
 ```
+
+Use the same `CLOCK_DISPLAY` value you built and installed.
 
 Enable service:
 
@@ -279,12 +276,12 @@ As for the internal layout, I fit everything into the case while ensuring the Po
 #  Todo
 
 1. Combine all clock faces into a single program and use a command-line argument to select display mode.
-2. Break out PTP processing code into separate library
+2. ~~Break out PTP processing code into separate library~~
 3. Hardware Timestamping support for NICs that support it.
 4. 12-hour format, with AM/PM indicator.
 5. Test that the 1-step actually works. I don't have a 1-step master clock, so I'm not 100% sure that it works.
 6. Port to a microcontroller. This would greatly improve boot time and remove the overhead of a full Linux system.
-7. Auto TIA to UTC offset, if in PTP packet
+7. ~~Auto TIA to UTC offset, if in PTP packet~~
 
 # Testing
 
