@@ -23,9 +23,9 @@ static const int PANEL_COLS = 64;
 static const int CHAIN_LENGTH = 2;
 static const int BRIGHTNESS = 85;
 
-static uint8_t CLOCK_R = 165;
-static uint8_t CLOCK_G = 40;
-static uint8_t CLOCK_B = 0;
+static uint8_t CLOCK_R = 255;
+static uint8_t CLOCK_G = 115;
+static uint8_t CLOCK_B = 5;
 
 static const uint8_t STATUS_R = 255;
 static const uint8_t STATUS_G = 0;
