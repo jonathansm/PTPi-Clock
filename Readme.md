@@ -117,6 +117,10 @@ g++ -std=c++17 -O2 <display_version>.cpp ptp_clock_ptp.cpp -o ptpi-clock \
   -lrgbmatrix -lrt -lpthread
 ```
 
+### RGB Order
+
+If, after you build, the colors are not correct, you may need to adjust the `options.led_rgb_sequence = RBG` line of code. My panel has the blue and green channels swapped. The first few versions of code I hard-coded the swap to work with my display. That was before I discovered that the matrix library had options for remapping. So I fixed hard-coded swap and now am using the library option to swap the channels. You may need to delete that or adjust accordingly. 
+
 ---
 
 ## Install
@@ -251,13 +255,19 @@ The most common advice when researching projects with these panels is to ensure 
 
 Given these results, I am confident using the PoE splitter listed above to power the setup. The splitter is specified for up to 5 amps, though this may not be accurate. The switch identifies as a class 4 POE device, so based on that it should supply close to 5amps. 
 
-I have operated the clock continuously (24/7) since assembly without experiencing stability issues. Notably, the display only flickers or dims when brightness is set below maximum, but that could be because of current spikes caused by PWM.
+I have operated the clock continuously (24/7) since assembly without experiencing stability issues. ~~Notably, the display only flickers or dims when brightness is set below maximum, but that could be because of current spikes caused by PWM.~~
 
 You can add a 10V 2200 µF capacitor on each panel to help absorb spikes. But this is completely optional.
 
 <img src="images/caps.jpg" alt="caps" style="zoom:50%;" />
 
-After adding the capacitors I did seem to notice an improvement, it wasn't perfect but much better than without. I'm sure there are some other software tweaks that may help, but for now, I just run it at max brightness. Who doesn't want to see the clock from the other side of the house?!
+~~After adding the capacitors I did seem to notice an improvement, it wasn't perfect but much better than without. I'm sure there are some other software tweaks that may help, but for now, I just run it at max brightness. Who doesn't want to see the clock from the other side of the house?!~~
+
+I fixed some code that removed the flicker. I had missed that there was a specific setting in the matrix library to use the "quality" option, so I changed the `options.hardware_mapping = "adafruit-hat";` to `options.hardware_mapping = "adafruit-hat-pwm"`;. If you don't solder the bodge wire and enable quality, make sure to remove the PWM before compiling. I also lowered the PWD option, and that helped a lot as well. 
+
+I lowered the default brightness to 85, mostly to not drive the LEDs too high, but I’m sure it's fine at 100. I plan to add that as a command-line argument eventually.
+
+You could still add the capacitors if you wanted, but I'm not sure whether they are helping. I’ve left mine installed.
 
 # Assembly
 
@@ -278,10 +288,15 @@ As for the internal layout, I fit everything into the case while ensuring the Po
 1. Combine all clock faces into a single program and use a command-line argument to select display mode.
 2. ~~Break out PTP processing code into separate library~~
 3. Hardware Timestamping support for NICs that support it.
-4. 12-hour format, with AM/PM indicator.
+4. 12-hour format. 
+   1. AM/PM indicator.
+
 5. Test that the 1-step actually works. I don't have a 1-step master clock, so I'm not 100% sure that it works.
 6. Port to a microcontroller. This would greatly improve boot time and remove the overhead of a full Linux system.
 7. ~~Auto TIA to UTC offset, if in PTP packet~~
+8. Command-line arguments. 
+   1. Brightness.
+
 
 # Testing
 

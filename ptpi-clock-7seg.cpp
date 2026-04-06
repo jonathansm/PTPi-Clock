@@ -20,7 +20,7 @@
 static const int PANEL_ROWS = 32;
 static const int PANEL_COLS = 64;
 static const int CHAIN_LENGTH = 2;
-static const int BRIGHTNESS = 100;
+static const int BRIGHTNESS = 85;
 
 static uint8_t CLOCK_R = 165;
 static uint8_t CLOCK_G = 40;
@@ -347,7 +347,9 @@ int main(int argc, char **argv)
   options.chain_length = CHAIN_LENGTH;
   options.parallel = 1;
   options.brightness = BRIGHTNESS;
-  options.hardware_mapping = "adafruit-hat";
+  options.led_rgb_sequence = "RBG";
+  options.hardware_mapping = "adafruit-hat-pwm";
+  options.pwm_bits = 3;
 
   rgb_matrix::RuntimeOptions rt_opts;
   rgb_matrix::RGBMatrix *matrix = rgb_matrix::CreateMatrixFromOptions(options, rt_opts);
@@ -368,8 +370,8 @@ int main(int argc, char **argv)
     return 1;
   }
 
-  rgb_matrix::Color clock_color(CLOCK_R, CLOCK_B, CLOCK_G);
-  rgb_matrix::Color status_color(STATUS_R, STATUS_B, STATUS_G);
+  rgb_matrix::Color clock_color(CLOCK_R, CLOCK_G, CLOCK_B);
+  rgb_matrix::Color status_color(STATUS_R, STATUS_G, STATUS_B);
 
   uint64_t last_frame_ns = ptpi::GetMonotonicNs();
 
