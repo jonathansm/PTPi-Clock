@@ -38,23 +38,21 @@ Parts of this code were either vibe-coded or refactored using LLMs.
 
 # Display Layout
 
-I have 3 different cpp files for different ways to display the time. I did this because I couldn't decide which one I liked the best. Eventually, I'd like it to be a single file with a command-line option to select.
+The clock now includes all 3 display layouts in a single binary. Use `--clock` or `-c` to choose the one you want at runtime. If you do not pass either option, it defaults to `7seg`.
 
-#### ptpi-clock.cpp
+#### `--clock og`
 
 ![og](images/og.png)
 
-#### ptpi-clock-2line.cpp
+#### `--clock 2line`
 
 ![2line](images/2line.png)
 
-#### ptpi-clock-7seg.cpp
+#### `--clock 7seg`
 
 ![7seg](images/7seg.png)
 
-
-
-`ptpi-clock.cpp` and `ptpi-clock-2line.cpp` use `bdf` fonts, so you can swap them out to whatever looks best for you. Beware that some of the digit placements are hardcoded based on those fonts. `ptpi-clock-7seg.cpp` digits are all generated, but it does use `7x14B.bdf` for error messages.
+The `og` and `2line` faces use `bdf` fonts, so you can swap them out to whatever looks best for you. Beware that some of the digit placements are hardcoded based on those fonts. The `7seg` digits are generated, but it still uses `7x14B.bdf` for status and error messages.
 
 ---
 
@@ -86,32 +84,16 @@ Add `isolcpus=3` to the end of line in `/boot/firmware/cmdline.txt`. Save, then 
 ---
 ## Build
 
-The Makefile now builds one display layout at a time as `ptpi-clock`.
-
-Available layouts:
-
-- `CLOCK_DISPLAY=og` uses `ptpi-clock.cpp`
-- `CLOCK_DISPLAY=2line` uses `ptpi-clock-2line.cpp`
-- `CLOCK_DISPLAY=7seg` uses `ptpi-clock-7seg.cpp`
-
-Build the default 7-segment layout:
+The Makefile now builds a single `ptpi-clock` binary with all 3 faces included.
 
 ```
-make DISPLAY=7seg
-```
-
-Build a specific layout:
-
-```
-make CLOCK_DISPLAY=og
-make CLOCK_DISPLAY=2line
-make CLOCK_DISPLAY=7seg
+make
 ```
 
 Or compile manually:
 
 ```
-g++ -std=c++17 -O2 <display_version>.cpp ptp_clock_ptp.cpp -o ptpi-clock \
+g++ -std=c++17 -O2 ptpi-clock.cpp ptp_clock_ptp.cpp -o ptpi-clock \
   -Irpi-rgb-led-matrix/include \
   -Lrpi-rgb-led-matrix/lib \
   -lrgbmatrix -lrt -lpthread
@@ -125,13 +107,11 @@ If, after you build, the colors are not correct, you may need to adjust the `opt
 
 ## Install
 
-Install the selected build and the required fonts for that layout:
+Install the binary and the required fonts for every face:
 
 ```
-sudo make CLOCK_DISPLAY=7seg install
+sudo make install
 ```
-
-Replace `7seg` with `og` or `2line` if you want one of those layouts installed instead.
 
 This installs:
 
@@ -148,6 +128,13 @@ Basic run:
 sudo /opt/ptpi-clock/ptpi-clock -i eth0
 ```
 
+Select a different face:
+
+```
+sudo /opt/ptpi-clock/ptpi-clock -i eth0 --clock og
+sudo /opt/ptpi-clock/ptpi-clock -i eth0 -c 2line
+```
+
 ---
 
 ## Options
@@ -155,6 +142,7 @@ sudo /opt/ptpi-clock/ptpi-clock -i eth0
 | Option | Description            |
 | ------ | ---------------------- |
 | `-i`   | Network interface      |
+| `--clock`, `-c` | Clock layout: `7seg`, `2line`, or `og` |
 | `-r`   | Red value (0-255)      |
 | `-g`   | Green value (0-255)    |
 | `-b`   | Blue value (0-255)     |
@@ -171,10 +159,16 @@ Default:
 sudo ptpi-clock -i eth0
 ```
 
+Original face:
+
+```
+sudo ptpi-clock -i eth0 --clock og
+```
+
 Green clock:
 
 ```
-sudo ptpi-clock -i eth0 -r 0 -g 255 -b 0
+sudo ptpi-clock -i eth0 -c 2line -r 0 -g 255 -b 0
 ```
 
 Mountain Time:
@@ -198,8 +192,6 @@ Edit the service file with any options that you want to include.
 ```
 sudo cp ptpi-clock.service /etc/systemd/system/ptpi-clock.service
 ```
-
-Use the same `CLOCK_DISPLAY` value you built and installed.
 
 Enable service:
 
@@ -285,7 +277,7 @@ As for the internal layout, I fit everything into the case while ensuring the Po
 
 #  Todo
 
-1. Combine all clock faces into a single program and use a command-line argument to select display mode.
+1. ~~Combine all clock faces into a single program and use a command-line argument to select display mode.~~
 2. ~~Break out PTP processing code into separate library~~
 3. Hardware Timestamping support for NICs that support it.
 4. 12-hour format. 

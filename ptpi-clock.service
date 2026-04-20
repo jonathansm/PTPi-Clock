@@ -14,6 +14,7 @@ User=root
 WorkingDirectory=/opt/ptpi-clock
 
 # Start the clock
+# Add --clock og or --clock 2line if you want a non-default clock layout.
 ExecStart=/opt/ptpi-clock/ptpi-clock -i eth0
 
 # Restart automatically if it exits
